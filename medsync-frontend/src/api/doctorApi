@@ -1,0 +1,21 @@
+import axiosInstance from './axiosInstance';
+
+// Public — no token needed
+export const getAllDoctorsApi = () =>
+  axiosInstance.get('/api/doctors');
+
+export const getDoctorsBySpecialtyApi = (specialty) =>
+  axiosInstance.get('/api/doctors/search', { params: { specialty } });
+
+// date must be a string in format "YYYY-MM-DD"
+export const getAvailableSlotsApi = (doctorId, date) =>
+  axiosInstance.get(`/api/doctors/${doctorId}/slots`, { params: { date } });
+
+// Doctor manages their own schedule
+export const addTimeSlotApi = (dayOfWeek, startTime, endTime) =>
+  axiosInstance.post('/api/doctors/schedule/slots', null, {
+    params: { dayOfWeek, startTime, endTime },
+  });
+
+export const toggleSlotApi = (slotId) =>
+  axiosInstance.put(`/api/doctors/schedule/slots/${slotId}/toggle`);
