@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- ── Project Identity ─────────────────────────────────────── -->
+    <groupId>com.medsync</groupId>
+    <artifactId>medsync-backend</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>medsync-backend</name>
+    <description>Smart Hospital Resource and Appointment Management System</description>
+
+    <!-- ── Spring Boot Parent ───────────────────────────────────── -->
+    <!--
+        This parent POM gives us:
+        - Sensible default dependency versions (no version conflicts)
+        - Built-in Maven plugins (compile, test, package)
+        - Spring Boot auto-configuration
+    -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.0</version>
+        <relativePath/>
+    </parent>
+
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+
+    <dependencies>
+
+        <!-- ── 1. Web Layer ─────────────────────────────────────── -->
+        <!--
+            Gives us: @RestController, @GetMapping, embedded Tomcat server.
+            Without this, Spring Boot won't handle HTTP at all.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- ── 2. Database ──────────────────────────────────────── -->
+        <!--
+            spring-data-jpa: lets us write Java interfaces (Repositories)
+            instead of raw SQL. JPA maps Java classes to DB tables.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!--
+            postgresql: the JDBC driver that physically connects to
+            your PostgreSQL database. JPA needs this to talk to Postgres.
+        -->
+        <dependency>
+    <groupId>org.postgresql</groupId>
+    <artifactId>postgresql</artifactId>
+    <scope>runtime</scope>
+</dependency>
+        
+
+        <!-- ── 3. Security ──────────────────────────────────────── -->
+        <!--
+            spring-security: adds authentication + authorization framework.
+            Every HTTP request will pass through a filter chain we configure.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!--
+            jjwt (Java JWT): lets us create and validate JWT tokens.
+            We use 3 jars together: api (interfaces), impl (logic), jackson (JSON parsing).
+        -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.11.5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- ── 4. Email ─────────────────────────────────────────── -->
+        <!--
+            Gives us JavaMailSender — a Spring-managed bean we @Autowire
+            into EmailNotificationService to send appointment emails.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
+        <!-- ── 5. Validation ────────────────────────────────────── -->
+        <!--
+            Enables @NotBlank, @Email, @Size on DTO fields.
+            Pair with @Valid on controller method params to auto-reject bad input.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- ── 6. Lombok ────────────────────────────────────────── -->
+        <!--
+            Annotation processor that generates boilerplate at compile time:
+            @Getter @Setter → no manual getters/setters
+            @Builder        → fluent object construction
+            @NoArgsConstructor @AllArgsConstructor → constructors
+            @Slf4j          → injects a 'log' variable for logging
+        -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <!-- ADD this inside <dependencies> -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+        <!-- ── 7. Testing ───────────────────────────────────────── -->
+        <!--
+            Bundles JUnit 5, Mockito, and Spring test utilities.
+            'test' scope means it's only on the classpath during mvn test.
+        -->
+        
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!--
+                spring-boot-maven-plugin: packages your app as a fat JAR
+                (all dependencies bundled). Run with: java -jar medsync-backend.jar
+                The excludes block strips Lombok from the final JAR — it's only
+                needed at compile time, not at runtime.
+            -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

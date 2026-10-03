@@ -1,0 +1,66 @@
+# ── Server ──────────────────────────────────────────────────────────
+server:
+  port: 8080
+
+# ── Spring Core Settings ─────────────────────────────────────────────
+spring:
+  application:
+    name: medsync-backend
+
+  # ── Database ───────────────────────────────────────────────────────
+  # Spring Boot reads these and creates a DataSource bean automatically.
+  # ddl-auto: update → JPA will create/alter tables to match your @Entity
+  # classes on every startup. Safe for dev; switch to 'validate' in prod.
+  datasource:
+    url: jdbc:postgresql://localhost:5432/medsync_db
+    username: postgres
+    password: user1234   # ← change this
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update            # creates tables if they don't exist
+    show-sql: true                # prints every SQL query to console (great for debugging)
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true          # pretty-prints the SQL in logs
+
+  # ── Email (Gmail SMTP example) ──────────────────────────────────────
+  # For Gmail: enable 2FA → create an App Password → paste it here.
+  # spring.mail.* values are picked up by JavaMailSender automatically.
+  # mail:
+  #   host: smtp.gmail.com
+  #   port: 587
+  #   username: your_email@gmail.com     # ← change this
+  #   password: your_app_password        # ← change this (App Password, not login password)
+  #   properties:
+  #     mail:
+  #       smtp:
+  #         auth: true
+  #         starttls:
+  #           enable: true
+
+# ── JWT Configuration ─────────────────────────────────────────────────
+# These are custom properties — Spring won't read them automatically.
+# We'll inject them into JwtConfig.java using @Value("${jwt.secret}")
+jwt:
+  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+  # ^ Must be at least 256 bits (64 hex chars) for HS256 algorithm.
+  # In production, set this as an environment variable, NOT in this file.
+  expiration: 86400000   # 24 hours in milliseconds
+
+# ── Async Thread Pool ─────────────────────────────────────────────────
+# Controls the thread pool used by @Async (our email notification service).
+# core-size: threads always alive | max-size: max under load | queue-capacity: buffer
+async:
+  core-pool-size: 2
+  max-pool-size: 5
+  queue-capacity: 100
+
+# ── Logging ───────────────────────────────────────────────────────────
+logging:
+  level:
+    com.medsync: DEBUG            # verbose logs for our own code
+    org.springframework.security: DEBUG   # shows which filter is doing what
+    org.hibernate.SQL: DEBUG      # shows generated SQL
